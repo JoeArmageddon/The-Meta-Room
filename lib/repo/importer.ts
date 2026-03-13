@@ -231,12 +231,18 @@ async function fetchRepoContents(
 ): Promise<GitHubFile[]> {
   const apiUrl = `${GITHUB_API_URL}/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
   
-  const response = await fetch(apiUrl, {
-    headers: {
-      'Accept': 'application/vnd.github.v3+json',
-      'User-Agent': 'The-Meta-Room-Importer'
-    }
-  });
+  const headers: Record<string, string> = {
+    'Accept': 'application/vnd.github.v3+json',
+    'User-Agent': 'The-Meta-Room-Importer'
+  };
+  
+  // Add GitHub token if available (increases rate limit from 60 to 5000 requests/hour)
+  const githubToken = process.env.GITHUB_TOKEN;
+  if (githubToken) {
+    headers['Authorization'] = `token ${githubToken}`;
+  }
+  
+  const response = await fetch(apiUrl, { headers });
 
   if (!response.ok) {
     throw new Error(`GitHub API error: ${response.statusText}`);
