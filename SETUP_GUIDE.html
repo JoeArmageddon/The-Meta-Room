@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Meta Room - Complete Setup Guide</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+            position: relative;
+        }
+
+        .progress-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: var(--bg-card);
+        }
+
+        .progress-step.completed::after {
+            background: var(--success);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid var(--border);
+            z-index: 1;
+        }
+
+        .progress-step.completed .step-number {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .progress-step.active .step-number {
+            background: var(--accent);
+            border-color: var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+        }
+
+        .step-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .section {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .code-block {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .code-block code {
+            color: #e6edf3;
+        }
+
+        .code-label {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            border-bottom-left-radius: 8px;
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .checklist {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .checklist li {
+            padding: 0.75rem 0;
+            padding-left: 2.5rem;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .checklist li:last-child {
+            border-bottom: none;
+        }
+
+        .checklist li::before {
+            content: '⬜';
+            position: absolute;
+            left: 0;
+            font-size: 1.2rem;
+        }
+
+        .checklist li.checked::before {
+            content: '✅';
+        }
+
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--accent);
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: var(--success);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning);
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--danger);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .env-var {
+            background: rgba(59, 130, 246, 0.15);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin: 0.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px dashed var(--accent);
+        }
+
+        .env-var-name {
+            font-family: monospace;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .env-var-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .command-step {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content h4 {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .step-content p {
+            margin-bottom: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            padding: 0.75rem 1.25rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 3rem 0;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .progress-bar {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .progress-step:not(:last-child)::after {
+                display: none;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+        }
+
+        .launch-section {
+            background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+            color: white;
+            text-align: center;
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+        }
+
+        .launch-section h2 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .launch-section p {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 1.5rem;
+        }
+
+        .launch-btn {
+            background: white;
+            color: var(--accent);
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 12px;
+        }
+
+        .launch-btn:hover {
+            background: rgba(255,255,255,0.9);
+        }
+
+        .quick-nav {
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            margin-bottom: 2rem;
+        }
+
+        .quick-nav-inner {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .quick-nav-inner::-webkit-scrollbar {
+            display: none;
+        }
+
+        .quick-nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .quick-nav a:hover {
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">🔥</div>
+        <h1>The Meta Room Setup Guide</h1>
+        <p class="subtitle">Complete step-by-step guide to configure and launch your AI knowledge platform</p>
+    </header>
+
+    <div class="container">
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-step active">
+                <div class="step-number">1</div>
+                <span class="step-label">Prerequisites</span>
+            </div>
+            <div class="progress-step">
+                <div class="step-number">2</div>
+                <span class="step-label">Database</span>
+            </div>
+            <div class="progress-step">
+                <div class="step-number">3</div>
+                <span class="step-label">Environment</span>
+            </div>
+            <div class="progress-step">
+                <div class="step-number">4</div>
+                <span class="step-label">Launch</span>
+            </div>
+        </div>
+
+        <!-- Quick Nav -->
+        <nav class="quick-nav">
+            <div class="quick-nav-inner">
+                <a href="#prereqs">Prerequisites</a>
+                <a href="#database">Database Setup</a>
+                <a href="#env">Environment</a>
+                <a href="#install">Installation</a>
+                <a href="#launch">Launch</a>
+                <a href="#troubleshoot">Troubleshoot</a>
+            </div>
+        </nav>
+
+        <!-- Section 1: Prerequisites -->
+        <section class="section" id="prereqs">
+            <div class="section-header">
+                <div class="section-icon">📋</div>
+                <div>
+                    <h2>Step 1: Prerequisites</h2>
+                    <p style="margin:0;">Before you begin, ensure you have these accounts and tools</p>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <strong>Required Accounts:</strong> You'll need to create free accounts on these platforms
+            </div>
+
+            <h3>1.1 Required Accounts</h3>
+            <ul class="checklist">
+                <li><strong>GitHub Account</strong> - For repository access<br><small>Sign up at <a href="https://github.com" target="_blank" style="color:var(--accent)">github.com</a></small></li>
+                <li><strong>Supabase Account</strong> - For PostgreSQL database<br><small>Sign up at <a href="https://supabase.com" target="_blank" style="color:var(--accent)">supabase.com</a></small></li>
+                <li><strong>Groq Account</strong> - For AI explanations<br><small>Sign up at <a href="https://console.groq.com" target="_blank" style="color:var(--accent)">console.groq.com</a></small></li>
+                <li><strong>Vercel Account (Optional)</strong> - For deployment<br><small>Sign up at <a href="https://vercel.com" target="_blank" style="color:var(--accent)">vercel.com</a></small></li>
+            </ul>
+
+            <h3>1.2 Required Software</h3>
+            <ul class="checklist">
+                <li><strong>Node.js 18+</strong> - Download from <a href="https://nodejs.org" target="_blank" style="color:var(--accent)">nodejs.org</a></li>
+                <li><strong>Git</strong> - Download from <a href="https://git-scm.com" target="_blank" style="color:var(--accent)">git-scm.com</a></li>
+                <li><strong>VS Code (Recommended)</strong> - Download from <a href="https://code.visualstudio.com" target="_blank" style="color:var(--accent)">code.visualstudio.com</a></li>
+            </ul>
+
+            <div class="alert alert-success">
+                <strong>Verify Node.js:</strong> Open terminal and run <code>node --version</code> - should show v18.0.0 or higher
+            </div>
+        </section>
+
+        <!-- Section 2: Database Setup -->
+        <section class="section" id="database">
+            <div class="section-header">
+                <div class="section-icon">🗄️</div>
+                <div>
+                    <h2>Step 2: Database Setup (Supabase)</h2>
+                    <p style="margin:0">Create and configure your PostgreSQL database</p>
+                </div>
+            </div>
+
+            <div class="command-step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h4>Create Supabase Project</h4>
+                    <p>Go to <a href="https://supabase.com" target="_blank" style="color:var(--accent)">supabase.com</a> and click "New Project"</p>
+                    <ul style="margin-left:1.5rem;color:var(--text-secondary)">
+                        <li>Choose your organization</li>
+                        <li>Name your project: <code>the-meta-room</code></li>
+                        <li>Set a secure database password (save this!)</li>
+                        <li>Choose a region close to you</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="command-step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h4>Get Your API Credentials</h4>
+                    <p>Once the project is created, go to Project Settings → API</p>
+                    <ul style="margin-left:1.5rem;color:var(--text-secondary)">
+                        <li>Copy <strong>Project URL</strong> (looks like: https://xxxxx.supabase.co)</li>
+                        <li>Copy <strong>anon public</strong> API key</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="command-step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h4>Run Database Schema</h4>
+                    <p>In Supabase Dashboard, go to SQL Editor → New Query</p>
+                    <ol style="margin-left:1.5rem;color:var(--text-secondary)">
+                        <li>Copy the entire contents of <code>lib/db/schema.sql</code></li>
+                        <li>Paste into the SQL Editor</li>
+                        <li>Click "Run" to execute</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="alert alert-success">
+                <strong>✓ Success!</strong> Your database should now have all tables created (sources, entries, ai_explanations, relationships, etc.)
+            </div>
+        </section>
+
+        <!-- Section 3: Environment Setup -->
+        <section class="section" id="env">
+            <div class="section-header">
+                <div class="section-icon">⚙️</div>
+                <div>
+                    <h2>Step 3: Environment Configuration</h2>
+                    <p style="margin:0">Configure your API keys and environment variables</p>
+                </div>
+            </div>
+
+            <div class="command-step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h4>Get Groq API Key</h4>
+                    <p>Go to <a href="https://console.groq.com/keys" target="_blank" style="color:var(--accent)">console.groq.com/keys</a></p>
+                    <ul style="margin-left:1.5rem;color:var(--text-secondary)">
+                        <li>Create a new API key</li>
+                        <li>Copy the key (starts with <code>gsk_</code>)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="command-step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h4>Create Environment File</h4>
+                    <p>In your project root folder, create a file named <code>.env.local</code></p>
+                </div>
+            </div>
+
+            <div class="command-step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h4>Add Environment Variables</h4>
+                    <p>Copy this template and fill in your values:</p>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <span class="code-label">.env.local</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code># Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs...
+
+# Groq API Configuration
+GROQ_API_KEY=gsk_your_api_key_here</code></pre>
+            </div>
+
+            <div class="alert alert-warning">
+                <strong>⚠️ Important:</strong> Never commit <code>.env.local</code> to GitHub! It contains sensitive API keys.
+            </div>
+
+            <div class="env-var">
+                <div>
+                    <div class="env-var-name">NEXT_PUBLIC_SUPABASE_URL</div>
+                    <div class="env-var-desc">Your Supabase project URL</div>
+                </div>
+            </div>
+            <div class="env-var">
+                <div>
+                    <div class="env-var-name">NEXT_PUBLIC_SUPABASE_ANON_KEY</div>
+                    <div class="env-var-desc">Your Supabase anon/public API key</div>
+                </div>
+            </div>
+            <div class="env-var">
+                <div>
+                    <div class="env-var-name">GROQ_API_KEY</div>
+                    <div class="env-var-desc">Your Groq API key for AI explanations</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Installation -->
+        <section class="section" id="install">
+            <div class="section-header">
+                <div class="section-icon">📦</div>
+                <div>
+                    <h2>Step 4: Installation</h2>
+                    <p style="margin:0">Install dependencies and prepare the application</p>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <strong>Open Terminal</strong> in VS Code or your preferred terminal, navigate to the project folder
+            </div>
+
+            <div class="command-step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h4>Navigate to Project Folder</h4>
+                    <div class="code-block">
+                        <span class="code-label">Terminal</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code>cd D:\Projects_V2\the-meta-room</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="command-step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h4>Install Dependencies</h4>
+                    <p>This will download all required packages (may take 1-2 minutes)</p>
+                    <div class="code-block">
+                        <span class="code-label">Terminal</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code>npm install</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="command-step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h4>Verify TypeScript (Optional)</h4>
+                    <p>Check for any type errors</p>
+                    <div class="code-block">
+                        <span class="code-label">Terminal</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code>npx tsc --noEmit</code></pre>
+                    </div>
+                    <p style="color:var(--text-secondary);font-size:0.9rem">Should show no errors if setup correctly</p>
+                </div>
+            </div>
+
+            <div class="alert alert-success">
+                <strong>✓ Ready!</strong> Your application is now installed and ready to launch
+            </div>
+        </section>
+
+        <!-- Section 5: Launch -->
+        <section class="section" id="launch">
+            <div class="section-header">
+                <div class="section-icon">🚀</div>
+                <div>
+                    <h2>Step 5: Launch the Application</h2>
+                    <p style="margin:0">Start the development server</p>
+                </div>
+            </div>
+
+            <h3>Option A: Development Mode (Recommended for testing)</h3>
+            <div class="code-block">
+                <span class="code-label">Terminal</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code>npm run dev</code></pre>
+            </div>
+            <ul style="margin-left:1.5rem;color:var(--text-secondary)">
+                <li>Server starts at <strong>http://localhost:3000</strong></li>
+                <li>Auto-reloads when you make changes</li>
+                <li>Best for development and testing</li>
+            </ul>
+
+            <h3>Option B: Custom Port</h3>
+            <div class="code-block">
+                <span class="code-label">Terminal</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code>npm run dev -- --port 3009</code></pre>
+            </div>
+
+            <h3>Option C: Production Build</h3>
+            <div class="code-block">
+                <span class="code-label">Terminal</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code>npm run build</code></pre>
+            </div>
+            <p style="color:var(--text-secondary)">Then start the production server:</p>
+            <div class="code-block">
+                <span class="code-label">Terminal</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code>npm start</code></pre>
+            </div>
+
+            <div class="launch-section">
+                <h2>🎉 You're Ready!</h2>
+                <p>Open your browser and visit http://localhost:3000 to see The Meta Room in action</p>
+                <a href="http://localhost:3000" target="_blank" class="btn launch-btn">Open The Meta Room →</a>
+            </div>
+        </section>
+
+        <!-- Section 6: First Steps -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-icon">✨</div>
+                <div>
+                    <h2>First Steps: Import Your First Repository</h2>
+                    <p style="margin:0">Get started by importing AI resources</p>
+                </div>
+            </div>
+
+            <div class="command-step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h4>Visit the Import Page</h4>
+                    <p>Once the app is running, go to <strong>http://localhost:3000/import</strong></p>
+                </div>
+            </div>
+
+            <div class="command-step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h4>Try an Example Repository</h4>
+                    <p>Use one of these URLs to test:</p>
+                    <div class="code-block">
+                        <pre><code>https://github.com/microsoft/ai-agents-for-beginners
+https://github.com/anthropics/prompt-eng-interactive-tutorial</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="command-step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h4>Explore Your Entries</h4>
+                    <p>After import completes, visit:</p>
+                    <ul style="margin-left:1.5rem;color:var(--text-secondary)">
+                        <li><strong>/explore</strong> - Search all entries</li>
+                        <li><strong>/skills</strong> - Browse skills</li>
+                        <li><strong>/agents</strong> - Browse agents</li>
+                        <li><strong>/prompts</strong> - Browse prompts</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section class="section" id="troubleshoot">
+            <div class="section-header">
+                <div class="section-icon">🔧</div>
+                <div>
+                    <h2>Troubleshooting</h2>
+                    <p style="margin:0">Common issues and solutions</p>
+                </div>
+            </div>
+
+            <h3>Build Errors</h3>
+            <div class="alert alert-danger">
+                <strong>Error:</strong> "Missing Supabase environment variables"
+                <br><br>
+                <strong>Solution:</strong> Make sure your <code>.env.local</code> file exists and contains all required variables. Restart the server after adding them.
+            </div>
+
+            <div class="alert alert-danger">
+                <strong>Error:</strong> "Cannot find module"
+                <br><br>
+                <strong>Solution:</strong> Run <code>npm install</code> to ensure all dependencies are installed.
+            </div>
+
+            <h3>Database Errors</h3>
+            <div class="alert alert-danger">
+                <strong>Error:</strong> "relation does not exist"
+                <br><br>
+                <strong>Solution:</strong> The database tables haven't been created. Run the SQL schema in Supabase SQL Editor (see Step 2).
+            </div>
+
+            <h3>Port Already in Use</h3>
+            <div class="alert alert-warning">
+                <strong>Error:</strong> "Port 3000 is already in use"
+                <br><br>
+                <strong>Solution:</strong> Use a different port: <code>npm run dev -- --port 3009</code>
+            </div>
+
+            <h3>AI Explanations Not Working</h3>
+            <div class="alert alert-warning">
+                <strong>Issue:</strong> No AI explanations are generated
+                <br><br>
+                <strong>Solution:</strong> 
+                <ol style="margin-left:1.5rem;margin-top:0.5rem">
+                    <li>Verify <code>GROQ_API_KEY</code> is set in <code>.env.local</code></li>
+                    <li>Check if you have credits in your Groq account</li>
+                    <li>Restart the development server</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Deployment -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-icon">🌐</div>
+                <div>
+                    <h2>Deploy to Vercel (Optional)</h2>
+                    <p style="margin:0">Make your app accessible online</p>
+                </div>
+            </div>
+
+            <ol style="margin-left:1.5rem;color:var(--text-secondary);line-height:2">
+                <li>Push your code to GitHub</li>
+                <li>Go to <a href="https://vercel.com" target="_blank" style="color:var(--accent)">vercel.com</a></li>
+                <li>Click "New Project" and import your GitHub repo</li>
+                <li>Add your environment variables in Vercel settings</li>
+                <li>Click Deploy!</li>
+            </ol>
+
+            <div class="alert alert-info">
+                <strong>Tip:</strong> For production deployment, consider setting up Row Level Security (RLS) policies in Supabase for better security.
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>The Meta Room - AI Skills & Agents Knowledge Base</p>
+            <p style="font-size:0.9rem;margin-top:0.5rem">Built with ❤️ using Next.js, Supabase, and Groq</p>
+        </footer>
+    </div>
+
+    <script>
+        // Copy code functionality
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement.querySelector('code');
+            navigator.clipboard.writeText(codeBlock.innerText);
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 2000);
+        }
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Checkbox functionality
+        document.querySelectorAll('.checklist li').forEach(item => {
+            item.addEventListener('click', () => {
+                item.classList.toggle('checked');
+            });
+        });
+
+        // Update progress bar on scroll
+        window.addEventListener('scroll', () => {
+            const sections = ['prereqs', 'database', 'env', 'launch'];
+            const scrollPos = window.scrollY + 200;
+            
+            sections.forEach((id, index) => {
+                const section = document.getElementById(id);
+                if (section) {
+                    const top = section.offsetTop;
+                    const bottom = top + section.offsetHeight;
+                    
+                    if (scrollPos >= top && scrollPos < bottom) {
+                        document.querySelectorAll('.progress-step').forEach((step, i) => {
+                            step.classList.remove('active', 'completed');
+                            if (i < index) step.classList.add('completed');
+                            if (i === index) step.classList.add('active');
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,36 +1,144 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# The Meta Room
 
-## Getting Started
+A searchable knowledge base and explorer for AI skills, agents, and prompt systems.
 
-First, run the development server:
+## Features
+
+- **Universal Search**: Semantic and full-text search across all entries
+- **AI Explanations**: Automatic AI-generated explanations for every entry
+- **Relationship Graphs**: Visualize connections between skills and agents
+- **Prompt Builder**: Generate CLI invocations for various AI tools
+- **Repository Import**: Import from GitHub or upload files directly
+- **Dark/Light Theme**: Sleek UI with theme toggle
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Database**: Supabase Postgres
+- **AI**: Groq API
+- **Graphs**: React Flow
+- **Deployment**: Vercel
+
+## Quick Start
+
+### 1. Clone and Install
+
+```bash
+git clone <repo-url>
+cd the-meta-room
+npm install
+```
+
+### 2. Environment Variables
+
+Copy `.env.example` to `.env.local` and fill in your values:
+
+```bash
+cp .env.example .env.local
+```
+
+Required variables:
+- `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anon key
+- `GROQ_API_KEY` - Your Groq API key
+
+### 3. Database Setup
+
+Run the SQL schema in `lib/db/schema.sql` in your Supabase SQL Editor.
+
+### 4. Development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 5. Build for Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
+## Database Schema
 
-To learn more about Next.js, take a look at the following resources:
+### Tables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **sources**: Imported repositories and file sources
+- **entries**: Main content (skills, agents, prompts, workflows, documentation)
+- **ai_explanations**: AI-generated explanations for entries
+- **relationships**: Connections between entries
+- **user_notes**: User-generated notes on entries
+- **embeddings**: Vector embeddings for semantic search
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Supported File Formats
 
-## Deploy on Vercel
+- `.md` / `.mdx` - Markdown with frontmatter
+- `.json` - JSON files
+- `.yaml` / `.yml` - YAML files
+- `.txt` - Plain text
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## CLI Formats
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The Prompt Builder supports generating invocations for:
+- Antigravity
+- Claude Code
+- Kimi
+- OpenAI Codex
+- Generic format
+
+## Deployment
+
+### Vercel
+
+1. Push to GitHub
+2. Import to Vercel
+3. Add environment variables
+4. Deploy
+
+### Supabase Setup
+
+1. Create a new project
+2. Run the schema SQL
+3. Enable Row Level Security (RLS)
+4. Get your API keys
+
+## Project Structure
+
+```
+app/
+├── api/           # API routes
+├── skills/        # Skills pages
+├── agents/        # Agents pages
+├── prompts/       # Prompts pages
+├── explore/       # Explore/search page
+├── import/        # Import page
+├── types/         # TypeScript types
+├── globals.css    # Global styles
+├── layout.tsx     # Root layout
+└── page.tsx       # Home page
+
+components/        # React components
+├── ui/           # shadcn/ui components
+├── search-bar.tsx
+├── entry-card.tsx
+├── ai-explanation.tsx
+├── graph-view.tsx
+├── prompt-builder.tsx
+├── navigation.tsx
+├── theme-toggle.tsx
+└── theme-provider.tsx
+
+lib/
+├── parsers/      # File parsers (markdown, JSON, YAML)
+├── db/           # Database client and schema
+├── ai/           # AI/LLM integration
+├── search/       # Search functionality
+├── repo/         # Repository importer
+└── utils.ts      # Utilities
+```
+
+## License
+
+MIT
