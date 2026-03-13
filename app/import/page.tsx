@@ -17,7 +17,8 @@ import {
   AlertCircle,
   FileText,
   ExternalLink,
-  RefreshCw
+  RefreshCw,
+  Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -37,6 +38,26 @@ export default function ImportPage() {
   const [progress, setProgress] = useState<ImportProgress | null>(null);
   const [result, setResult] = useState<{ success: boolean; entriesCreated: number; errors: string[] } | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [resetStatus, setResetStatus] = useState<'idle' | 'resetting' | 'success' | 'error'>('idle');
+
+  const handleResetDatabase = async () => {
+    if (!confirm('WARNING: This will delete ALL entries, sources, and import history. Are you sure?')) {
+      return;
+    }
+    
+    setResetStatus('resetting');
+    try {
+      const response = await fetch('/api/reset-db', { method: 'POST' });
+      if (response.ok) {
+        setResetStatus('success');
+        setTimeout(() => setResetStatus('idle'), 3000);
+      } else {
+        setResetStatus('error');
+      }
+    } catch (error) {
+      setResetStatus('error');
+    }
+  };
 
   const handleGitHubImport = async () => {
     if (!repoUrl.trim()) return;
@@ -418,6 +439,35 @@ export default function ImportPage() {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Reset Database */}
+      <Card className="mt-8 border-red-500/20">
+        <CardHeader>
+          <CardTitle className="text-red-500 flex items-center gap-2">
+            <Trash2 className="h-5 w-5" />
+            Danger Zone
+          </CardTitle>
+          <CardDescription>
+            Reset the entire database. This action cannot be undone.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button 
+            variant="destructive" 
+            onClick={handleResetDatabase}
+            disabled={resetStatus === 'resetting'}
+          >
+            {resetStatus === 'resetting' ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <Trash2 className="h-4 w-4 mr-2" />
+            )}
+            {resetStatus === 'success' ? 'Database Reset!' : 
+             resetStatus === 'error' ? 'Reset Failed' : 
+             'Reset Database'}
+          </Button>
         </CardContent>
       </Card>
     </div>

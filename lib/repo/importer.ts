@@ -163,6 +163,14 @@ async function createEntryFromEntity(
   // If exists, append a unique suffix
   const finalSlug = existing ? `${slug}-${Date.now().toString(36)}` : slug;
 
+  // Ensure metadata includes category and purpose
+  const metadata = {
+    ...entity.metadata,
+    category: entity.metadata?.category || null,
+    purpose: entity.metadata?.purpose || null,
+    filePath
+  };
+
   // Create entry
   const { data: entry, error } = await supabase
     .from('entries')
@@ -173,8 +181,8 @@ async function createEntryFromEntity(
       original_content: entity.content,
       source_id: sourceId,
       file_path: filePath,
-      tags: entity.tags,
-      metadata: entity.metadata
+      tags: entity.tags || [],
+      metadata: metadata
     })
     .select()
     .single();

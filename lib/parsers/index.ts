@@ -1,7 +1,11 @@
 import { parseMarkdown, extractCodeBlocks, extractLinks } from './markdown';
 import { parseJSON, isValidJSON } from './json';
 import { parseYAML, isValidYAML } from './yaml';
+import { filterValidEntities, SKILL_CATEGORIES } from './skill-filter';
 import { ParsedEntity, EntityType } from '@/app/types';
+
+export { SKILL_CATEGORIES };
+export type { SkillCategory } from './skill-filter';
 
 export interface ParseResult {
   entities: ParsedEntity[];
@@ -130,11 +134,19 @@ export function parseFile(fileContent: string, fileName: string, defaultType?: E
       break;
   }
   
-  return parseContent(fileContent, {
+  const result = parseContent(fileContent, {
     filePath: fileName,
     defaultType,
     contentType
   });
+  
+  // Filter out invalid/untitled entities
+  const validEntities = filterValidEntities(result.entities, fileName);
+  
+  return {
+    entities: validEntities,
+    errors: result.errors
+  };
 }
 
 // Re-export individual parsers

@@ -10,20 +10,47 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, X, LayoutGrid, List, Wand2 } from 'lucide-react';
+import { SKILL_CATEGORIES } from '@/lib/parsers';
+import { Search, X, LayoutGrid, List, Wand2, Filter, Tag } from 'lucide-react';
+
+const CATEGORY_ICONS: Record<string, string> = {
+  writing: '✍️',
+  coding: '💻',
+  designing: '🎨',
+  analysis: '📊',
+  research: '🔍',
+  communication: '💬',
+  productivity: '⚡',
+  learning: '📚',
+  creative: '✨',
+  business: '💼',
+  data: '📈',
+  marketing: '📢',
+  development: '🛠️',
+  testing: '🧪',
+  debugging: '🐛',
+  documentation: '📄',
+  planning: '📋',
+  automation: '🤖',
+  integration: '🔗',
+  security: '🔒'
+};
 
 function ExploreContent() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   const initialType = searchParams.get('type') || '';
+  const initialCategory = searchParams.get('category') || '';
 
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [allEntries, setAllEntries] = useState<Entry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedType, setSelectedType] = useState<string>(initialType || 'all');
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showPromptBuilder, setShowPromptBuilder] = useState(false);
+  const [showCategoryFilter, setShowCategoryFilter] = useState(false);
 
   const performSearch = useCallback(async () => {
     setIsLoading(true);
@@ -69,7 +96,11 @@ function ExploreContent() {
     }
   }, [query, selectedType, performSearch, fetchAllEntries]);
 
-  const displayedEntries = query ? results.map(r => r.entry) : allEntries;
+  // Filter entries by category
+  const filteredEntries = (query ? results.map(r => r.entry) : allEntries).filter(entry => {
+    if (selectedCategory === 'all') return true;
+    return entry.metadata?.category === selectedCategory;
+  });
 
   const typeCounts = {
     all: allEntries.length,
@@ -79,6 +110,12 @@ function ExploreContent() {
     workflow: allEntries.filter(e => e.type === 'workflow').length,
     documentation: allEntries.filter(e => e.type === 'documentation').length,
   };
+
+  // Count entries by category
+  const categoryCounts = SKILL_CATEGORIES.reduce((acc, cat) => {
+    acc[cat] = allEntries.filter(e => e.metadata?.category === cat).length;
+    return acc;
+  }, {} as Record<string, number>);
 
   return (
     <>
@@ -114,6 +151,15 @@ function ExploreContent() {
 
         <div className="flex gap-2">
           <Button
+            variant={showCategoryFilter ? 'secondary' : 'outline'}
+            onClick={() => setShowCategoryFilter(!showCategoryFilter)}
+            className="gap-2"
+          >
+            <Filter className="h-4 w-4" />
+            Categories
+          </Button>
+
+          <Button
             variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
             size="icon"
             onClick={() => setViewMode('grid')}
@@ -138,6 +184,49 @@ function ExploreContent() {
           </Button>
         </div>
       </div>
+
+      {/* Category Filter */}
+      {showCategoryFilter && (
+        <div className="mb-6 p-4 border rounded-lg bg-muted/30">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <Tag className="h-4 w-4" />
+              Filter by Category
+            </h3>
+            {selectedCategory !== 'all' && (
+              <Button variant="ghost" size="sm" onClick={() => setSelectedCategory('all')}>
+                Clear
+              </Button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={selectedCategory === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedCategory('all')}
+            >
+              All
+            </Button>
+            {SKILL_CATEGORIES.map((cat) => (
+              categoryCounts[cat] > 0 && (
+                <Button
+                  key={cat}
+                  variant={selectedCategory === cat ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory(cat)}
+                  className="capitalize"
+                >
+                  <span className="mr-1">{CATEGORY_ICONS[cat] || '📌'}</span>
+                  {cat}
+                  <Badge variant="secondary" className="ml-2 text-xs">
+                    {categoryCounts[cat]}
+                  </Badge>
+                </Button>
+              )
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Type Filter Tabs */}
       <Tabs value={selectedType} onValueChange={(value) => setSelectedType(value || 'all')} className="mb-6">
@@ -179,18 +268,22 @@ function ExploreContent() {
             <Skeleton key={i} className="h-48" />
           ))}
         </div>
-      ) : displayedEntries.length === 0 ? (
+      ) : filteredEntries.length === 0 ? (
         <div className="text-center py-20">
           <p className="text-muted-foreground">No entries found.</p>
-          {query && (
-            <Button variant="outline" className="mt-4" onClick={() => setQuery('')}>
-              Clear Search
+          {(query || selectedCategory !== 'all') && (
+            <Button 
+              variant="outline" 
+              className="mt-4" 
+              onClick={() => { setQuery(''); setSelectedCategory('all'); }}
+            >
+              Clear Filters
             </Button>
           )}
         </div>
       ) : (
         <div className={viewMode === 'grid' ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}>
-          {displayedEntries.map((entry) => (
+          {filteredEntries.map((entry) => (
             <EntryCard 
               key={entry.id} 
               entry={entry} 
