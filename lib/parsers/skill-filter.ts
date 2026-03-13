@@ -133,11 +133,13 @@ export function isInvalidTitle(title: string): boolean {
  */
 export function extractCategory(entity: ParsedEntity): SkillCategory | null {
   // Check tags first
-  for (const tag of entity.tags) {
-    const lowerTag = tag.toLowerCase();
-    for (const category of SKILL_CATEGORIES) {
-      if (lowerTag.includes(category)) {
-        return category;
+  if (entity.tags && entity.tags.length > 0) {
+    for (const tag of entity.tags) {
+      const lowerTag = tag.toLowerCase();
+      for (const category of SKILL_CATEGORIES) {
+        if (lowerTag.includes(category)) {
+          return category;
+        }
       }
     }
   }
