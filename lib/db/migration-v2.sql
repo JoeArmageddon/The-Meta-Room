@@ -94,6 +94,7 @@ ALTER TABLE entries ADD COLUMN IF NOT EXISTS screenshot_url TEXT;
 ALTER TABLE entries ADD COLUMN IF NOT EXISTS demo_url TEXT;
 ALTER TABLE entries ADD COLUMN IF NOT EXISTS video_url TEXT;
 ALTER TABLE entries ADD COLUMN IF NOT EXISTS is_published BOOLEAN DEFAULT TRUE;
+ALTER TABLE entries ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE;
 
 -- ai_explanations table columns
 ALTER TABLE ai_explanations ADD COLUMN IF NOT EXISTS key_takeaways TEXT[] DEFAULT '{}';
