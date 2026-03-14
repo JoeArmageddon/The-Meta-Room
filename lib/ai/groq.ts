@@ -7,7 +7,7 @@ if (!groqApiKey && typeof window === 'undefined') {
   console.warn('GROQ_API_KEY not set. AI explanations will not work.');
 }
 
-const groq = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
+export const groq = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
 
 const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
 
@@ -184,6 +184,98 @@ Example: [{"targetId": "uuid-1", "relationshipType": "uses", "confidence": 0.9}]
   } catch (error) {
     console.error('Error suggesting relationships:', error);
     return [];
+  }
+}
+
+// New: Generate comprehensive metadata for entries
+export async function generateEntryMetadata(
+  content: string,
+  title: string,
+  type: string
+): Promise<{
+  summary: string;
+  tags: string[];
+  complexity: 'beginner' | 'intermediate' | 'advanced';
+  estimatedTime: string;
+  prerequisites: string[];
+}> {
+  if (!groq) {
+    return {
+      summary: '',
+      tags: [],
+      complexity: 'intermediate',
+      estimatedTime: 'unknown',
+      prerequisites: []
+    };
+  }
+
+  const prompt = `Analyze this ${type} and extract key metadata.
+
+Title: ${title}
+
+Content:
+---
+${content.slice(0, 3000)}
+---
+
+Provide a JSON response with:
+1. summary: A 1-2 sentence summary
+2. tags: Array of 5-8 relevant tags (lowercase, single words or hyphenated)
+3. complexity: "beginner", "intermediate", or "advanced"
+4. estimatedTime: Estimated time to learn/use (e.g., "5 min", "30 min", "1 hour")
+5. prerequisites: Array of skills/knowledge needed before using this
+
+Format:
+{
+  "summary": "...",
+  "tags": ["tag1", "tag2", ...],
+  "complexity": "intermediate",
+  "estimatedTime": "30 min",
+  "prerequisites": ["prereq1", "prereq2"]
+}`;
+
+  try {
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a metadata extraction system. Return only valid JSON.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      model: 'llama-3.1-8b-instant',
+      temperature: 0.3,
+      response_format: { type: 'json_object' }
+    });
+
+    const response = completion.choices[0]?.message?.content;
+    if (!response) {
+      throw new Error('Empty response');
+    }
+
+    const parsed = JSON.parse(response);
+    
+    return {
+      summary: parsed.summary || '',
+      tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+      complexity: ['beginner', 'intermediate', 'advanced'].includes(parsed.complexity) 
+        ? parsed.complexity 
+        : 'intermediate',
+      estimatedTime: parsed.estimatedTime || 'unknown',
+      prerequisites: Array.isArray(parsed.prerequisites) ? parsed.prerequisites : []
+    };
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return {
+      summary: '',
+      tags: [],
+      complexity: 'intermediate',
+      estimatedTime: 'unknown',
+      prerequisites: []
+    };
   }
 }
 

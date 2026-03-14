@@ -1,10 +1,29 @@
 import { parseMarkdown, extractCodeBlocks, extractLinks } from './markdown';
 import { parseJSON, isValidJSON } from './json';
 import { parseYAML, isValidYAML } from './yaml';
-import { filterValidEntities, SKILL_CATEGORIES } from './skill-filter';
-import { ParsedEntity, EntityType } from '@/app/types';
+import { 
+  filterValidEntities, 
+  SKILL_CATEGORIES,
+  extractCategory,
+  extractSkillPurpose,
+  calculateQualityScore,
+  suggestCollection,
+  detectContentRelationships,
+  shouldSkipFile,
+  isInvalidTitle
+} from './skill-filter';
+import { ParsedEntity, EntityType, SkillCategory, QualityScore } from '@/app/types';
 
-export { SKILL_CATEGORIES };
+export { 
+  SKILL_CATEGORIES,
+  extractCategory,
+  extractSkillPurpose,
+  calculateQualityScore,
+  suggestCollection,
+  detectContentRelationships,
+  shouldSkipFile,
+  isInvalidTitle
+};
 export type { SkillCategory } from './skill-filter';
 
 export interface ParseResult {
