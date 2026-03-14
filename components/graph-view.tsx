@@ -26,7 +26,7 @@ interface GraphViewProps {
   className?: string;
 }
 
-const typeConfig = {
+const typeConfig: Record<string, {icon: any, color: string, bgColor: string, borderColor: string}> = {
   skill: {
     icon: Sparkles,
     color: '#3b82f6',
@@ -50,6 +50,12 @@ const typeConfig = {
     color: '#f97316',
     bgColor: '#fff7ed',
     borderColor: '#f97316',
+  },
+  pattern: {
+    icon: BookOpen,
+    color: '#ec4899',
+    bgColor: '#fdf2f8',
+    borderColor: '#ec4899',
   },
   documentation: {
     icon: BookOpen,

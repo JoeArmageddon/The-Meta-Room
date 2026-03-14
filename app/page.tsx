@@ -1,148 +1,106 @@
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { SearchBar } from '@/components/search-bar';
-import { 
-  Sparkles, 
-  Bot, 
-  FileText, 
-  Workflow, 
-  ArrowRight,
-  Database,
-  Search,
-  GitBranch
-} from 'lucide-react';
-
-const features = [
-  {
-    icon: Database,
-    title: 'Knowledge Indexing',
-    description: 'Ingest and index skills, agents, prompts, and documentation from any repository.',
-  },
-  {
-    icon: Search,
-    title: 'Semantic Search',
-    description: 'Find what you need with AI-powered semantic and full-text search.',
-  },
-  {
-    icon: Sparkles,
-    title: 'AI Explanations',
-    description: 'Get AI-generated explanations and use cases for every entry.',
-  },
-  {
-    icon: GitBranch,
-    title: 'Relationship Graphs',
-    description: 'Visualize connections between skills, agents, and workflows.',
-  },
-];
-
-const entityTypes = [
-  { icon: Sparkles, label: 'Skills', href: '/skills', color: 'text-blue-400', bg: 'bg-blue-500/10' },
-  { icon: Bot, label: 'Agents', href: '/agents', color: 'text-purple-400', bg: 'bg-purple-500/10' },
-  { icon: FileText, label: 'Prompts', href: '/prompts', color: 'text-green-400', bg: 'bg-green-500/10' },
-  { icon: Workflow, label: 'Workflows', href: '/explore?type=workflow', color: 'text-orange-400', bg: 'bg-orange-500/10' },
-];
+import { HeroSearch } from "@/components/hero-search";
+import { StatsBar } from "@/components/stats-bar";
+import { FeaturedCollections } from "@/components/featured-collections";
+import { TrendingEntries } from "@/components/trending-entries";
+import { LearningPaths } from "@/components/learning-paths";
+import { Bot, Sparkles, ArrowRight, Zap } from "lucide-react";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col">
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-background" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.1),transparent_50%)]" />
-        
-        <div className="container mx-auto px-4 relative">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
-              <Sparkles className="h-4 w-4" />
-              AI Knowledge Discovery Platform
-            </div>
-            
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-              The Meta Room
-            </h1>
-            
-            <p className="text-xl text-muted-foreground mb-4">
-              A searchable knowledge base and explorer for AI skills, agents, and prompt systems.
-            </p>
-            
-            <p className="text-muted-foreground mb-10 max-w-xl mx-auto">
-              Index, explore, and understand AI capabilities from any repository. 
-              Never modify original content—only enhance discovery.
-            </p>
+      <section className="relative overflow-hidden px-4 pt-20 pb-16 sm:px-6 lg:px-8">
+        {/* Background Effects */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -left-40 h-80 w-80 rounded-full bg-purple-500/20 blur-[120px]" />
+          <div className="absolute top-20 right-20 h-96 w-96 rounded-full bg-cyan-500/10 blur-[100px]" />
+          <div className="absolute bottom-0 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-emerald-500/10 blur-[80px]" />
+        </div>
 
-            {/* Search */}
-            <div className="max-w-xl mx-auto mb-12">
-              <SearchBar />
-            </div>
+        <div className="relative mx-auto max-w-5xl text-center">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-sm text-purple-300 mb-8">
+            <Sparkles className="h-4 w-4" />
+            <span>The Ultimate AI Agent Resource</span>
+          </div>
 
-            {/* Quick Links */}
-            <div className="flex flex-wrap justify-center gap-3">
-              {entityTypes.map((type) => (
-                <Link key={type.label} href={type.href}>
-                  <Button variant="outline" className="gap-2">
-                    <type.icon className={`h-4 w-4 ${type.color}`} />
-                    {type.label}
-                  </Button>
-                </Link>
-              ))}
-            </div>
+          {/* Headline */}
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6">
+            <span className="text-white">Master </span>
+            <span className="gradient-text">AI Agents</span>
+            <br />
+            <span className="text-white">& Prompt Engineering</span>
+          </h1>
+
+          {/* Subheadline */}
+          <p className="mx-auto max-w-2xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed">
+            Discover patterns, prompts, and workflows to build powerful AI systems. 
+            From beginner basics to advanced techniques.
+          </p>
+
+          {/* Search */}
+          <HeroSearch />
+
+          {/* CTA Buttons */}
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <Link
+              href="/explore"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-cyan-500 text-white font-medium shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all hover:scale-105"
+            >
+              <Bot className="h-5 w-5" />
+              Explore Agents
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/patterns"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium transition-all"
+            >
+              <Zap className="h-5 w-5" />
+              View Patterns
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Why The Meta Room?</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Built for scale and designed for discovery. Preserve original content 
-              while unlocking new levels of understanding.
-            </p>
-          </div>
+      {/* Stats Bar */}
+      <StatsBar />
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature) => (
-              <Card key={feature.title} className="group hover:border-primary/50 transition-colors">
-                <CardContent className="pt-6">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                    <feature.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+      {/* Featured Collections */}
+      <section className="px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <FeaturedCollections />
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4">Ready to Explore?</h2>
-            <p className="text-muted-foreground mb-8">
-              Start by importing a repository or browse our growing collection of 
-              AI skills and agents.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/explore">
-                <Button size="lg" className="gap-2">
-                  <Search className="h-4 w-4" />
-                  Explore Entries
-                </Button>
-              </Link>
-              <Link href="/import">
-                <Button size="lg" variant="outline" className="gap-2">
-                  <GitBranch className="h-4 w-4" />
-                  Import Repository
-                </Button>
-              </Link>
-            </div>
-          </div>
+      {/* Trending Entries */}
+      <section className="px-4 py-16 sm:px-6 lg:px-8 border-t border-white/5 bg-gradient-to-b from-transparent to-white/[0.02]">
+        <div className="mx-auto max-w-7xl">
+          <TrendingEntries />
+        </div>
+      </section>
+
+      {/* Learning Paths */}
+      <section className="px-4 py-16 sm:px-6 lg:px-8 border-t border-white/5">
+        <div className="mx-auto max-w-7xl">
+          <LearningPaths />
+        </div>
+      </section>
+
+      {/* Footer CTA */}
+      <section className="px-4 py-20 sm:px-6 lg:px-8 border-t border-white/5">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="text-3xl font-bold mb-4">Ready to build better AI?</h2>
+          <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
+            Join thousands of developers mastering AI agents. Start exploring our curated collection today.
+          </p>
+          <Link
+            href="/explore"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-purple-500 to-cyan-500 text-white font-semibold shadow-xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all hover:scale-105"
+          >
+            Get Started Free
+            <ArrowRight className="h-5 w-5" />
+          </Link>
         </div>
       </section>
     </div>

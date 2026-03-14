@@ -1,317 +1,223 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Entry, SearchResult } from '@/app/types';
-import { EntryCard } from '@/components/entry-card';
-import { PromptBuilder } from '@/components/prompt-builder';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
-import { SKILL_CATEGORIES } from '@/lib/parsers';
-import { Search, X, LayoutGrid, List, Wand2, Filter, Tag } from 'lucide-react';
+import { useState } from "react";
+import { Entry } from "@/app/types";
+import { EntryCard } from "@/components/entry-card";
+import { SearchBar } from "@/components/search-bar";
+import { FilterPanel } from "@/components/filter-panel";
+import { ViewToggle } from "@/components/view-toggle";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Grid3X3, List, Sparkles } from "lucide-react";
 
-const CATEGORY_ICONS: Record<string, string> = {
-  writing: '✍️',
-  coding: '💻',
-  designing: '🎨',
-  analysis: '📊',
-  research: '🔍',
-  communication: '💬',
-  productivity: '⚡',
-  learning: '📚',
-  creative: '✨',
-  business: '💼',
-  data: '📈',
-  marketing: '📢',
-  development: '🛠️',
-  testing: '🧪',
-  debugging: '🐛',
-  documentation: '📄',
-  planning: '📋',
-  automation: '🤖',
-  integration: '🔗',
-  security: '🔒'
-};
+// Mock data
+const mockEntries: Entry[] = [
+  {
+    id: "1",
+    title: "ReAct Agent Pattern",
+    slug: "react-agent-pattern",
+    type: "pattern",
+    description: "Reasoning and Acting pattern for building agents that can think step by step",
+    complexity: "intermediate",
+    tags: ["agents", "reasoning", "planning", "react"],
+    ai_tags: [],
+    categories: [],
+    view_count: 1250,
+    copy_count: 340,
+    bookmark_count: 120,
+    rating_avg: 4.8,
+    rating_count: 45,
+    is_featured: true,
+    is_published: true,
+    original_content: "",
+    source_id: "",
+    created_at: "2024-01-01",
+    updated_at: "2024-01-01"
+  },
+  {
+    id: "2",
+    title: "System Prompt Template",
+    slug: "system-prompt-template",
+    type: "prompt",
+    description: "A comprehensive system prompt template with role definition and constraints",
+    complexity: "beginner",
+    tags: ["prompts", "templates", "system"],
+    ai_tags: [],
+    categories: [],
+    view_count: 980,
+    copy_count: 520,
+    bookmark_count: 200,
+    rating_avg: 4.9,
+    rating_count: 62,
+    is_featured: true,
+    is_published: true,
+    original_content: "",
+    source_id: "",
+    created_at: "2024-01-01",
+    updated_at: "2024-01-01"
+  },
+  {
+    id: "3",
+    title: "Multi-Agent Workflow",
+    slug: "multi-agent-workflow",
+    type: "workflow",
+    description: "Coordinate multiple specialized agents to solve complex tasks",
+    complexity: "advanced",
+    tags: ["workflows", "multi-agent", "coordination"],
+    ai_tags: [],
+    categories: [],
+    view_count: 850,
+    copy_count: 180,
+    bookmark_count: 95,
+    rating_avg: 4.7,
+    rating_count: 38,
+    is_featured: true,
+    is_published: true,
+    original_content: "",
+    source_id: "",
+    created_at: "2024-01-01",
+    updated_at: "2024-01-01"
+  },
+  {
+    id: "4",
+    title: "Chain-of-Thought Prompting",
+    slug: "chain-of-thought",
+    type: "skill",
+    description: "Technique to improve reasoning by asking the model to show its work",
+    complexity: "beginner",
+    tags: ["prompting", "reasoning", "techniques"],
+    ai_tags: [],
+    categories: [],
+    view_count: 1100,
+    copy_count: 410,
+    bookmark_count: 150,
+    rating_avg: 4.9,
+    rating_count: 55,
+    is_featured: true,
+    is_published: true,
+    original_content: "",
+    source_id: "",
+    created_at: "2024-01-01",
+    updated_at: "2024-01-01"
+  },
+  {
+    id: "5",
+    title: "Tool Use Pattern",
+    slug: "tool-use-pattern",
+    type: "pattern",
+    description: "Enable agents to use external tools and APIs effectively",
+    complexity: "intermediate",
+    tags: ["agents", "tools", "api", "function-calling"],
+    ai_tags: [],
+    categories: [],
+    view_count: 920,
+    copy_count: 280,
+    bookmark_count: 110,
+    rating_avg: 4.6,
+    rating_count: 42,
+    is_featured: false,
+    is_published: true,
+    original_content: "",
+    source_id: "",
+    created_at: "2024-01-01",
+    updated_at: "2024-01-01"
+  },
+  {
+    id: "6",
+    title: "Few-Shot Prompting Guide",
+    slug: "few-shot-prompting",
+    type: "skill",
+    description: "Learn how to use examples to improve model performance",
+    complexity: "beginner",
+    tags: ["prompting", "few-shot", "examples"],
+    ai_tags: [],
+    categories: [],
+    view_count: 780,
+    copy_count: 350,
+    bookmark_count: 130,
+    rating_avg: 4.7,
+    rating_count: 38,
+    is_featured: false,
+    is_published: true,
+    original_content: "",
+    source_id: "",
+    created_at: "2024-01-01",
+    updated_at: "2024-01-01"
+  }
+];
 
-function ExploreContent() {
-  const searchParams = useSearchParams();
-  const initialQuery = searchParams.get('q') || '';
-  const initialType = searchParams.get('type') || '';
-  const initialCategory = searchParams.get('category') || '';
+export default function ExplorePage() {
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [activeTab, setActiveTab] = useState("all");
 
-  const [query, setQuery] = useState(initialQuery);
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [allEntries, setAllEntries] = useState<Entry[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedType, setSelectedType] = useState<string>(initialType || 'all');
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showPromptBuilder, setShowPromptBuilder] = useState(false);
-  const [showCategoryFilter, setShowCategoryFilter] = useState(false);
-
-  const performSearch = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (query) params.append('q', query);
-      if (selectedType && selectedType !== 'all') params.append('type', selectedType);
-      params.append('limit', '50');
-
-      const response = await fetch(`/api/search?${params}`);
-      if (response.ok) {
-        const data = await response.json();
-        setResults(data.results);
-      }
-    } catch (error) {
-      console.error('Search error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [query, selectedType]);
-
-  const fetchAllEntries = useCallback(async () => {
-    try {
-      const params = new URLSearchParams();
-      if (selectedType && selectedType !== 'all') params.append('type', selectedType);
-      params.append('limit', '100');
-
-      const response = await fetch(`/api/entries?${params}`);
-      if (response.ok) {
-        const data = await response.json();
-        setAllEntries(data.entries);
-      }
-    } catch (error) {
-      console.error('Error fetching entries:', error);
-    }
-  }, [selectedType]);
-
-  useEffect(() => {
-    if (query) {
-      performSearch();
-    } else {
-      fetchAllEntries();
-    }
-  }, [query, selectedType, performSearch, fetchAllEntries]);
-
-  // Filter entries by category
-  const filteredEntries = (query ? results.map(r => r.entry) : allEntries).filter(entry => {
-    if (selectedCategory === 'all') return true;
-    return entry.metadata?.category === selectedCategory;
-  });
-
-  const typeCounts = {
-    all: allEntries.length,
-    skill: allEntries.filter(e => e.type === 'skill').length,
-    agent: allEntries.filter(e => e.type === 'agent').length,
-    prompt: allEntries.filter(e => e.type === 'prompt').length,
-    workflow: allEntries.filter(e => e.type === 'workflow').length,
-    documentation: allEntries.filter(e => e.type === 'documentation').length,
-  };
-
-  // Count entries by category
-  const categoryCounts = SKILL_CATEGORIES.reduce((acc, cat) => {
-    acc[cat] = allEntries.filter(e => e.metadata?.category === cat).length;
-    return acc;
-  }, {} as Record<string, number>);
+  const filteredEntries = activeTab === "all" 
+    ? mockEntries 
+    : mockEntries.filter(e => e.type === activeTab);
 
   return (
-    <>
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Explore</h1>
-        <p className="text-muted-foreground">
-          Search and discover AI skills, agents, prompts, and workflows.
-        </p>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search entries..."
-            className="pl-10"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          {query && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7"
-              onClick={() => setQuery('')}
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          )}
-        </div>
-
-        <div className="flex gap-2">
-          <Button
-            variant={showCategoryFilter ? 'secondary' : 'outline'}
-            onClick={() => setShowCategoryFilter(!showCategoryFilter)}
-            className="gap-2"
-          >
-            <Filter className="h-4 w-4" />
-            Categories
-          </Button>
-
-          <Button
-            variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-            size="icon"
-            onClick={() => setViewMode('grid')}
-          >
-            <LayoutGrid className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-            size="icon"
-            onClick={() => setViewMode('list')}
-          >
-            <List className="h-4 w-4" />
-          </Button>
-
-          <Button
-            variant={showPromptBuilder ? 'secondary' : 'outline'}
-            onClick={() => setShowPromptBuilder(!showPromptBuilder)}
-            className="gap-2"
-          >
-            <Wand2 className="h-4 w-4" />
-            Builder
-          </Button>
-        </div>
-      </div>
-
-      {/* Category Filter */}
-      {showCategoryFilter && (
-        <div className="mb-6 p-4 border rounded-lg bg-muted/30">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-medium flex items-center gap-2">
-              <Tag className="h-4 w-4" />
-              Filter by Category
-            </h3>
-            {selectedCategory !== 'all' && (
-              <Button variant="ghost" size="sm" onClick={() => setSelectedCategory('all')}>
-                Clear
-              </Button>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant={selectedCategory === 'all' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedCategory('all')}
-            >
-              All
-            </Button>
-            {SKILL_CATEGORIES.map((cat) => (
-              categoryCounts[cat] > 0 && (
-                <Button
-                  key={cat}
-                  variant={selectedCategory === cat ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedCategory(cat)}
-                  className="capitalize"
-                >
-                  <span className="mr-1">{CATEGORY_ICONS[cat] || '📌'}</span>
-                  {cat}
-                  <Badge variant="secondary" className="ml-2 text-xs">
-                    {categoryCounts[cat]}
-                  </Badge>
-                </Button>
-              )
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Type Filter Tabs */}
-      <Tabs value={selectedType} onValueChange={(value) => setSelectedType(value || 'all')} className="mb-6">
-        <TabsList className="flex-wrap h-auto gap-2">
-          <TabsTrigger value="all" className="gap-2">
-            All
-            <Badge variant="secondary" className="ml-1">{typeCounts.all}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="skill" className="gap-2">
-            Skills
-            <Badge variant="secondary" className="ml-1">{typeCounts.skill}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="agent" className="gap-2">
-            Agents
-            <Badge variant="secondary" className="ml-1">{typeCounts.agent}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="prompt" className="gap-2">
-            Prompts
-            <Badge variant="secondary" className="ml-1">{typeCounts.prompt}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="workflow" className="gap-2">
-            Workflows
-            <Badge variant="secondary" className="ml-1">{typeCounts.workflow}</Badge>
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      {/* Prompt Builder */}
-      {showPromptBuilder && (
+    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        {/* Header */}
         <div className="mb-8">
-          <PromptBuilder availableEntries={allEntries} />
+          <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-2">
+            <Sparkles className="h-6 w-6 text-purple-400" />
+            Explore
+          </h1>
+          <p className="text-muted-foreground">
+            Discover AI agents, prompts, patterns, and workflows
+          </p>
         </div>
-      )}
 
-      {/* Results */}
-      {isLoading ? (
-        <div className={viewMode === 'grid' ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-48" />
-          ))}
+        {/* Search & Filters */}
+        <div className="mb-8 space-y-4">
+          <SearchBar />
+          
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="bg-white/5 border border-white/10">
+                <TabsTrigger value="all" className="data-[state=active]:bg-purple-500/20">All</TabsTrigger>
+                <TabsTrigger value="agent" className="data-[state=active]:bg-purple-500/20">Agents</TabsTrigger>
+                <TabsTrigger value="prompt" className="data-[state=active]:bg-purple-500/20">Prompts</TabsTrigger>
+                <TabsTrigger value="workflow" className="data-[state=active]:bg-purple-500/20">Workflows</TabsTrigger>
+                <TabsTrigger value="pattern" className="data-[state=active]:bg-purple-500/20">Patterns</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <div className="flex items-center gap-3">
+              <FilterPanel />
+              <ViewToggle view={viewMode} onChange={setViewMode} />
+            </div>
+          </div>
         </div>
-      ) : filteredEntries.length === 0 ? (
-        <div className="text-center py-20">
-          <p className="text-muted-foreground">No entries found.</p>
-          {(query || selectedCategory !== 'all') && (
-            <Button 
-              variant="outline" 
-              className="mt-4" 
-              onClick={() => { setQuery(''); setSelectedCategory('all'); }}
-            >
-              Clear Filters
-            </Button>
-          )}
-        </div>
-      ) : (
-        <div className={viewMode === 'grid' ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}>
+
+        {/* Results */}
+        <div className={cn(
+          "gap-4",
+          viewMode === "grid" ? "grid sm:grid-cols-2 lg:grid-cols-3" : "flex flex-col"
+        )}>
           {filteredEntries.map((entry) => (
             <EntryCard 
               key={entry.id} 
               entry={entry} 
-              className={viewMode === 'list' ? 'flex flex-row items-center' : ''}
+              variant={viewMode === "list" ? "compact" : "default"}
             />
           ))}
         </div>
-      )}
-    </>
+
+        {/* Empty State */}
+        {filteredEntries.length === 0 && (
+          <div className="text-center py-20">
+            <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/5 mb-4">
+              <Sparkles className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-medium text-white mb-2">No results found</h3>
+            <p className="text-muted-foreground">Try adjusting your search or filters</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
-export default function ExplorePage() {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <Suspense fallback={
-        <div className="space-y-4">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-4 w-96" />
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-48" />
-            ))}
-          </div>
-        </div>
-      }>
-        <ExploreContent />
-      </Suspense>
-    </div>
-  );
+function cn(...classes: (string | undefined | boolean)[]) {
+  return classes.filter(Boolean).join(" ");
 }

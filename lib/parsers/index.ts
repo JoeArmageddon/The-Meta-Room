@@ -128,9 +128,9 @@ function detectContentType(content: string, filePath?: string): 'markdown' | 'js
 }
 
 function validateEntityType(type: string): EntityType {
-  const validTypes: EntityType[] = ['skill', 'agent', 'prompt', 'workflow', 'documentation'];
+  const validTypes: EntityType[] = ['skill', 'agent', 'prompt', 'workflow', 'pattern', 'tool', 'resource', 'documentation'];
   const normalizedType = type.toLowerCase() as EntityType;
-  return validTypes.includes(normalizedType) ? normalizedType : 'documentation';
+  return validTypes.includes(normalizedType) ? normalizedType : 'pattern';
 }
 
 export function parseFile(fileContent: string, fileName: string, defaultType?: EntityType): ParseResult {

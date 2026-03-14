@@ -1,164 +1,74 @@
-'use client';
+"use client";
 
-import { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Search, X, Loader2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
-import { SearchResult } from '@/app/types';
-import { cn } from '@/lib/utils';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Search, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-interface SearchBarProps {
-  className?: string;
-  onSearch?: (query: string, results: SearchResult[]) => void;
-  showResults?: boolean;
-}
-
-export function SearchBar({ className, onSearch, showResults = false }: SearchBarProps) {
+export function SearchBar() {
+  const [query, setQuery] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const router = useRouter();
-  const [query, setQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
-
-  const performSearch = useCallback(async (searchQuery: string) => {
-    if (!searchQuery.trim()) {
-      setResults([]);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}&limit=10`);
-      if (response.ok) {
-        const data = await response.json();
-        setResults(data.results);
-        onSearch?.(searchQuery, data.results);
-      }
-    } catch (error) {
-      console.error('Search error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [onSearch]);
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (query) performSearch(query);
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [query, performSearch]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
       router.push(`/explore?q=${encodeURIComponent(query)}`);
-      setIsOpen(false);
-    }
-  };
-
-  const handleResultClick = (result: SearchResult) => {
-    const path = `/${result.entry.type}s/${result.entry.slug}`;
-    router.push(path);
-    setIsOpen(false);
-    setQuery('');
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'skill': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-      case 'agent': return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
-      case 'prompt': return 'bg-green-500/20 text-green-400 border-green-500/30';
-      case 'workflow': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
     }
   };
 
   return (
-    <div className={cn('relative w-full max-w-2xl', className)}>
-      <form onSubmit={handleSubmit} className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search skills, agents, prompts..."
-          className="pl-10 pr-20 h-11 bg-background/50 backdrop-blur-sm border-muted"
+    <form onSubmit={handleSubmit} className="relative">
+      <div
+        className={cn(
+          "relative flex items-center rounded-xl border transition-all duration-300",
+          isFocused
+            ? "border-purple-500/50 bg-white/10 shadow-lg shadow-purple-500/10"
+            : "border-white/10 bg-white/5 hover:border-white/20"
+        )}
+      >
+        <Search className={cn(
+          "absolute left-4 h-5 w-5 transition-colors",
+          isFocused ? "text-purple-400" : "text-muted-foreground"
+        )} />
+        <input
+          type="text"
           value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setIsOpen(true);
-          }}
-          onFocus={() => setIsOpen(true)}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          placeholder="Search agents, prompts, patterns..."
+          className="w-full bg-transparent py-3.5 pl-12 pr-24 text-white placeholder:text-muted-foreground focus:outline-none"
         />
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-          {query && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={() => {
-                setQuery('');
-                setResults([]);
-              }}
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          )}
-          {isLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        <div className="absolute right-2 flex items-center gap-2">
+          <kbd className="hidden sm:inline-flex h-7 items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 text-xs text-muted-foreground">
+            <span className="text-xs">⌘</span>K
+          </kbd>
         </div>
-      </form>
-
-      {isOpen && (query || results.length > 0) && (
-        <div className="absolute top-full left-0 right-0 mt-2 z-50">
-          <Command className="rounded-lg border shadow-lg bg-popover">
-            <CommandList>
-              {results.length === 0 && query && !isLoading && (
-                <CommandEmpty>No results found for "{query}"</CommandEmpty>
-              )}
-              {results.length > 0 && (
-                <CommandGroup heading={`Results for "${query}"`}>
-                  {results.map((result) => (
-                    <CommandItem
-                      key={result.entry.id}
-                      onSelect={() => handleResultClick(result)}
-                      className="flex items-center justify-between py-3 cursor-pointer"
-                    >
-                      <div className="flex flex-col gap-1 min-w-0">
-                        <span className="font-medium truncate">{result.entry.title}</span>
-                        <span className="text-xs text-muted-foreground truncate">
-                          {result.entry.original_content.slice(0, 100)}...
-                        </span>
-                      </div>
-                      <Badge 
-                        variant="outline" 
-                        className={cn('ml-2 shrink-0 capitalize', getTypeColor(result.entry.type))}
-                      >
-                        {result.entry.type}
-                      </Badge>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              )}
-            </CommandList>
-            {query && (
-              <div className="border-t p-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full justify-center"
-                  onClick={handleSubmit}
-                >
-                  View all results for "{query}"
-                </Button>
-              </div>
-            )}
-          </Command>
+      </div>
+      
+      {/* Search Suggestions Dropdown - can be expanded */}
+      {isFocused && (
+        <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-white/10 bg-card/95 backdrop-blur-xl p-2 shadow-xl z-50">
+          <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
+            <Sparkles className="h-3 w-3" />
+            Popular searches
+          </div>
+          {["ReAct pattern", "System prompts", "Multi-agent", "Tool use"].map((term) => (
+            <button
+              key={term}
+              type="button"
+              onClick={() => {
+                setQuery(term);
+                router.push(`/explore?q=${encodeURIComponent(term)}`);
+              }}
+              className="w-full text-left px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-white/5 hover:text-white transition-colors"
+            >
+              {term}
+            </button>
+          ))}
         </div>
       )}
-    </div>
+    </form>
   );
 }

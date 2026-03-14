@@ -1,160 +1,150 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Entry } from '@/app/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { FileText, Bot, Sparkles, Workflow, BookOpen, Tag } from 'lucide-react';
+import Link from "next/link";
+import { Entry } from "@/app/types";
+import { 
+  Bot, 
+  MessageSquare, 
+  Workflow, 
+  Wrench, 
+  BookOpen, 
+  Star, 
+  Eye, 
+  Bookmark,
+  Copy,
+  Clock,
+  BarChart3
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const typeIcons: Record<string, any> = {
+  agent: Bot,
+  prompt: MessageSquare,
+  workflow: Workflow,
+  skill: Wrench,
+  pattern: BookOpen,
+  tool: Wrench,
+  resource: BookOpen,
+  documentation: BookOpen
+};
+
+const typeColors: Record<string, string> = {
+  agent: "text-purple-400 bg-purple-500/10",
+  prompt: "text-emerald-400 bg-emerald-500/10",
+  workflow: "text-amber-400 bg-amber-500/10",
+  skill: "text-blue-400 bg-blue-500/10",
+  pattern: "text-pink-400 bg-pink-500/10",
+  tool: "text-cyan-400 bg-cyan-500/10",
+  resource: "text-slate-400 bg-slate-500/10",
+  documentation: "text-slate-400 bg-slate-500/10"
+};
+
+const complexityColors: Record<string, string> = {
+  beginner: "text-emerald-400 border-emerald-500/30",
+  intermediate: "text-amber-400 border-amber-500/30",
+  advanced: "text-orange-400 border-orange-500/30",
+  expert: "text-red-400 border-red-500/30"
+};
 
 interface EntryCardProps {
   entry: Entry;
-  className?: string;
-  showAIExplanation?: boolean;
+  variant?: "default" | "compact" | "featured";
 }
 
-const typeConfig = {
-  skill: {
-    icon: Sparkles,
-    color: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-    bgGradient: 'from-blue-500/5 to-transparent',
-    label: 'Skill'
-  },
-  agent: {
-    icon: Bot,
-    color: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-    bgGradient: 'from-purple-500/5 to-transparent',
-    label: 'Agent'
-  },
-  prompt: {
-    icon: FileText,
-    color: 'bg-green-500/10 text-green-400 border-green-500/20',
-    bgGradient: 'from-green-500/5 to-transparent',
-    label: 'Prompt'
-  },
-  workflow: {
-    icon: Workflow,
-    color: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-    bgGradient: 'from-orange-500/5 to-transparent',
-    label: 'Workflow'
-  },
-  documentation: {
-    icon: BookOpen,
-    color: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
-    bgGradient: 'from-gray-500/5 to-transparent',
-    label: 'Documentation'
+export function EntryCard({ entry, variant = "default" }: EntryCardProps) {
+  const Icon = typeIcons[entry.type] || BookOpen;
+
+  if (variant === "compact") {
+    return (
+      <Link
+        href={`/${entry.type}s/${entry.slug}`}
+        className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 transition-all group"
+      >
+        <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg", typeColors[entry.type])}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium text-white truncate group-hover:text-purple-300 transition-colors">
+            {entry.title}
+          </h4>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="capitalize">{entry.type}</span>
+            <span>•</span>
+            <span className="flex items-center gap-1">
+              <Star className="h-3 w-3" />
+              {entry.rating_avg.toFixed(1)}
+            </span>
+          </div>
+        </div>
+      </Link>
+    );
   }
-};
-
-// Category colors for badges
-const categoryColors: Record<string, string> = {
-  writing: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
-  coding: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-  designing: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
-  analysis: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  research: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  communication: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
-  productivity: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
-  learning: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
-  creative: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20',
-  business: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
-  data: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
-  marketing: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-  development: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  testing: 'bg-red-500/10 text-red-400 border-red-500/20',
-  debugging: 'bg-lime-500/10 text-lime-400 border-lime-500/20',
-  documentation: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
-  planning: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
-  automation: 'bg-green-500/10 text-green-400 border-green-500/20',
-  integration: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-  security: 'bg-red-600/10 text-red-600 border-red-600/20'
-};
-
-export function EntryCard({ entry, className, showAIExplanation = true }: EntryCardProps) {
-  const config = typeConfig[entry.type] || typeConfig.documentation;
-  const Icon = config.icon;
-
-  // Get purpose from metadata or AI explanation
-  const purpose = entry.metadata?.purpose || 
-                  entry.ai_explanation?.use_cases?.[0] || 
-                  entry.ai_explanation?.summary ||
-                  entry.original_content.slice(0, 150);
-  
-  const hasAIExplanation = entry.ai_explanation && showAIExplanation;
-  
-  // Get category from metadata
-  const category = entry.metadata?.category as string | undefined;
-  const categoryColor = category ? (categoryColors[category] || 'bg-muted text-muted-foreground') : null;
 
   return (
-    <Link href={`/${entry.type}s/${entry.slug}`}>
-      <Card className={cn(
-        'group relative overflow-hidden transition-all duration-300',
-        'hover:shadow-lg hover:border-primary/20',
-        'cursor-pointer h-full',
-        className
-      )}>
-        {/* Gradient Background */}
-        <div className={cn(
-          'absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity',
-          config.bgGradient
-        )} />
+    <Link
+      href={`/${entry.type}s/${entry.slug}`}
+      className="group flex flex-col rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition-all hover:border-purple-500/30 hover:bg-white/[0.04]"
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between mb-3">
+        <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", typeColors[entry.type])}>
+          <Icon className="h-5 w-5" />
+        </div>
+        {entry.complexity && (
+          <span className={cn("text-xs px-2 py-1 rounded-full border capitalize", complexityColors[entry.complexity])}>
+            {entry.complexity}
+          </span>
+        )}
+      </div>
 
-        <CardHeader className="relative pb-2">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className={cn('p-2 rounded-lg', config.color)}>
-                <Icon className="h-4 w-4" />
-              </div>
-              <Badge variant="outline" className={cn('text-xs capitalize', config.color)}>
-                {config.label}
-              </Badge>
-              {category && categoryColor && (
-                <Badge variant="outline" className={cn('text-xs capitalize', categoryColor)}>
-                  <Tag className="h-3 w-3 mr-1" />
-                  {category}
-                </Badge>
-              )}
-            </div>
-            {hasAIExplanation && (
-              <Badge variant="secondary" className="text-xs shrink-0">
-                AI Explained
-              </Badge>
-            )}
-          </div>
-          <CardTitle className="text-lg mt-3 line-clamp-2 group-hover:text-primary transition-colors">
-            {entry.title}
-          </CardTitle>
-        </CardHeader>
+      {/* Content */}
+      <h3 className="font-semibold text-white mb-2 group-hover:text-purple-300 transition-colors line-clamp-1">
+        {entry.title}
+      </h3>
+      <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-1">
+        {entry.description}
+      </p>
 
-        <CardContent className="relative pt-0">
-          {/* Purpose / What this skill is for */}
-          <div className="mb-3">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
-              What it&apos;s for
-            </p>
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {typeof purpose === 'string' ? purpose : String(purpose).slice(0, 150)}
-              {typeof purpose === 'string' && purpose.length > 150 && '...'}
-            </p>
-          </div>
+      {/* Tags */}
+      <div className="flex flex-wrap gap-1.5 mb-4">
+        {entry.tags.slice(0, 3).map((tag) => (
+          <span key={tag} className="text-xs px-2 py-0.5 rounded bg-white/5 text-muted-foreground">
+            {tag}
+          </span>
+        ))}
+        {entry.tags.length > 3 && (
+          <span className="text-xs px-2 py-0.5 rounded bg-white/5 text-muted-foreground">
+            +{entry.tags.length - 3}
+          </span>
+        )}
+      </div>
 
-          {entry.tags && entry.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-3">
-              {entry.tags.slice(0, 3).map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-              {entry.tags.length > 3 && (
-                <Badge variant="secondary" className="text-xs">
-                  +{entry.tags.length - 3}
-                </Badge>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Stats */}
+      <div className="flex items-center gap-4 text-xs text-muted-foreground pt-3 border-t border-white/5">
+        <span className="flex items-center gap-1">
+          <Eye className="h-3.5 w-3.5" />
+          {formatNumber(entry.view_count)}
+        </span>
+        <span className="flex items-center gap-1">
+          <Copy className="h-3.5 w-3.5" />
+          {formatNumber(entry.copy_count)}
+        </span>
+        <span className="flex items-center gap-1">
+          <Bookmark className="h-3.5 w-3.5" />
+          {formatNumber(entry.bookmark_count)}
+        </span>
+        <span className="flex items-center gap-1 ml-auto">
+          <Star className="h-3.5 w-3.5 text-amber-400" />
+          {entry.rating_avg.toFixed(1)}
+        </span>
+      </div>
     </Link>
   );
+}
+
+function formatNumber(num: number): string {
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + "k";
+  }
+  return num.toString();
 }

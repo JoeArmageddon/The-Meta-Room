@@ -1,65 +1,36 @@
-// Entity Types
-export type EntityType = 'skill' | 'agent' | 'prompt' | 'workflow' | 'documentation';
-
-// Skill categories for classification
-export type SkillCategory = 
-  | 'writing'
-  | 'coding'
-  | 'designing'
-  | 'analysis'
-  | 'research'
-  | 'communication'
-  | 'productivity'
-  | 'learning'
-  | 'creative'
-  | 'business'
-  | 'data'
-  | 'marketing'
-  | 'development'
-  | 'testing'
-  | 'debugging'
-  | 'documentation'
-  | 'planning'
-  | 'automation'
-  | 'integration'
-  | 'security'
-  | 'ai'
-  | 'machine-learning'
-  | 'devops'
-  | 'frontend'
-  | 'backend'
-  | 'database'
-  | 'api'
-  | 'mobile'
-  | 'web'
-  | 'cloud'
-  | 'infrastructure';
+export type EntityType = 'skill' | 'agent' | 'prompt' | 'workflow' | 'pattern' | 'tool' | 'resource' | 'documentation';
+export type Complexity = 'beginner' | 'intermediate' | 'advanced' | 'expert';
 
 export interface Source {
   id: string;
   name: string;
-  type: 'github' | 'upload' | 'manual';
+  type: 'github' | 'upload' | 'manual' | 'community';
   repo_url?: string;
-  import_date: string;
-  entry_count?: number;
-  // New: Track last sync for incremental updates
+  author_name?: string;
+  author_avatar?: string;
+  stars: number;
   last_sync_at?: string;
-  last_commit?: string;
+  metadata?: Record<string, any>;
+  created_at: string;
 }
 
-// New: Collection/Folder structure
 export interface Collection {
   id: string;
   name: string;
+  slug: string;
   description?: string;
   parent_id?: string;
   source_id?: string;
-  path?: string;  // For auto-created from folder structure
-  color?: string;
-  icon?: string;
-  entry_count?: number;
+  path?: string;
+  icon: string;
+  color: string;
+  cover_image?: string;
+  entry_count: number;
+  is_featured: boolean;
+  display_order: number;
   created_at: string;
   updated_at: string;
+  children?: Collection[];
 }
 
 export interface Entry {
@@ -67,37 +38,44 @@ export interface Entry {
   type: EntityType;
   title: string;
   slug: string;
+  description?: string;
   original_content: string;
+  rendered_content?: string;
   source_id: string;
   file_path?: string;
-  // New: Collection assignment
   collection_id?: string;
+  
   tags: string[];
+  ai_tags: string[];
+  categories: string[];
+  
+  quality_score?: number;
+  complexity?: Complexity;
+  estimated_time?: string;
+  
+  view_count: number;
+  copy_count: number;
+  bookmark_count: number;
+  rating_avg: number;
+  rating_count: number;
+  
+  screenshot_url?: string;
+  demo_url?: string;
+  video_url?: string;
+  
+  is_featured: boolean;
+  is_published: boolean;
+  
+  metadata?: Record<string, any>;
   created_at: string;
   updated_at: string;
-  metadata?: Record<string, any>;
-  // New: Quality and analysis fields
-  quality_score?: QualityScore;
-  ai_tags?: string[];  // AI-generated tags
-  // Joined fields
+  
   source?: Source;
-  ai_explanation?: AIExplanation;
-  user_notes?: UserNote[];
-  relationships?: Relationship[];
   collection?: Collection;
-}
-
-// New: Quality scoring
-export interface QualityScore {
-  overall: number;
-  factors: {
-    completeness: number;
-    clarity: number;
-    uniqueness: number;
-    testability: number;
-    documentation: number;
-  };
-  suggestions: string[];
+  ai_explanation?: AIExplanation;
+  relationships?: Relationship[];
+  user_bookmark?: UserBookmark;
+  user_rating?: UserRating;
 }
 
 export interface AIExplanation {
@@ -105,33 +83,45 @@ export interface AIExplanation {
   entry_id: string;
   summary: string;
   detailed_explanation: string;
+  key_takeaways: string[];
   use_cases: string[];
   examples: string[];
-  related_tools?: string[];
-  generated_at: string;
+  code_examples: { language: string; code: string; description?: string }[];
+  related_tools: string[];
+  prerequisites: string[];
   model_used?: string;
+  generated_at: string;
 }
 
 export interface Relationship {
   id: string;
   source_entry_id: string;
   target_entry_id: string;
-  relationship_type: 'depends_on' | 'uses' | 'related_to' | 'part_of' | 'extends';
-  strength?: number;
-  // New: Evidence from content
+  relationship_type: 'depends_on' | 'uses' | 'related_to' | 'part_of' | 'extends' | 'alternative_to' | 'prerequisite_for';
+  strength: number;
   evidence?: string;
-  confidence?: number;
+  confidence: number;
   detected_by: 'ai' | 'manual' | 'content_analysis';
   created_at: string;
-  // Joined fields
   target_entry?: Entry;
   source_entry?: Entry;
 }
 
-export interface UserNote {
+export interface UserBookmark {
   id: string;
   entry_id: string;
-  note: string;
+  user_id: string;
+  folder_name: string;
+  notes?: string;
+  created_at: string;
+}
+
+export interface UserRating {
+  id: string;
+  entry_id: string;
+  user_id: string;
+  rating: number;
+  review?: string;
   created_at: string;
   updated_at: string;
 }
@@ -146,6 +136,40 @@ export interface UserSkill {
   updated_at: string;
 }
 
+export interface AITaggingResult {
+  tags: string[];
+  categories: string[];
+  complexity: 'beginner' | 'intermediate' | 'advanced';
+  estimatedTime?: string;
+  keywords: string[];
+}
+
+export interface UserNote {
+  id: string;
+  entry_id: string;
+  user_id: string;
+  note: string;
+  is_private: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LearningPath {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string;
+  difficulty?: Complexity;
+  estimated_hours?: number;
+  entry_ids: string[];
+  prerequisites: string[];
+  outcomes: string[];
+  is_featured: boolean;
+  view_count: number;
+  created_at: string;
+  entries?: Entry[];
+}
+
 export interface SearchResult {
   entry: Entry;
   score: number;
@@ -158,77 +182,30 @@ export interface ParsedEntity {
   content: string;
   metadata?: Record<string, any>;
   tags?: string[];
-  // New: Enrichment fields
   suggested_collection?: string;
   detected_relationships?: DetectedRelationship[];
   quality_score?: QualityScore;
 }
 
-// New: For relationship detection
 export interface DetectedRelationship {
-  target_name: string;  // Name of related skill/agent to find
+  target_name: string;
   type: 'depends_on' | 'uses' | 'related_to' | 'part_of' | 'extends';
   evidence: string;
   confidence: number;
 }
 
-export interface CLIOption {
-  id: string;
-  name: string;
-  format: string;
-  description: string;
-}
-
-export interface PromptSelection {
-  skills: Entry[];
-  agents: Entry[];
-  cliFormat: string;
-}
-
-// Graph types for React Flow
-export interface GraphNode {
-  id: string;
-  type: 'skill' | 'agent' | 'prompt' | 'workflow' | 'documentation';
-  position: { x: number; y: number };
-  data: {
-    label: string;
-    entry: Entry;
+export interface QualityScore {
+  overall: number;
+  factors: {
+    completeness: number;
+    clarity: number;
+    uniqueness: number;
+    testability: number;
+    documentation: number;
   };
+  suggestions: string[];
 }
 
-export interface GraphEdge {
-  id: string;
-  source: string;
-  target: string;
-  type?: string;
-  label?: string;
-  animated?: boolean;
-}
-
-export interface AgentTeam {
-  id: string;
-  name: string;
-  description: string;
-  agents: {
-    role: string;
-    agent_id: string;
-    agent?: Entry;
-  }[];
-}
-
-export interface ImportJob {
-  id: string;
-  source_url: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  total_files: number;
-  processed_files: number;
-  entries_found: number;
-  error_message?: string;
-  created_at: string;
-  completed_at?: string;
-}
-
-// New: Import Preview types
 export interface ImportPreviewFile {
   path: string;
   entities: ParsedEntity[];
@@ -255,11 +232,67 @@ export interface ImportPreview {
   };
 }
 
-// New: AI Tagging result
-export interface AITaggingResult {
-  tags: string[];
-  categories: string[];
-  complexity: 'beginner' | 'intermediate' | 'advanced';
-  estimatedTime?: string;
-  keywords: string[];
+export type SkillCategory = 
+  | 'writing' | 'coding' | 'designing' | 'analysis' | 'research'
+  | 'communication' | 'productivity' | 'learning' | 'creative'
+  | 'business' | 'data' | 'marketing' | 'development' | 'testing'
+  | 'debugging' | 'documentation' | 'planning' | 'automation'
+  | 'integration' | 'security' | 'ai' | 'machine-learning'
+  | 'devops' | 'frontend' | 'backend' | 'database' | 'api'
+  | 'mobile' | 'web' | 'cloud' | 'infrastructure';
+
+export interface ParsedEntity {
+  type: EntityType;
+  title: string;
+  content: string;
+  metadata?: Record<string, any>;
+  tags?: string[];
+  suggested_collection?: string;
+  detected_relationships?: DetectedRelationship[];
+  quality_score?: QualityScore;
+}
+
+export interface DetectedRelationship {
+  target_name: string;
+  type: 'depends_on' | 'uses' | 'related_to' | 'part_of' | 'extends';
+  evidence: string;
+  confidence: number;
+}
+
+export interface QualityScore {
+  overall: number;
+  factors: {
+    completeness: number;
+    clarity: number;
+    uniqueness: number;
+    testability: number;
+    documentation: number;
+  };
+  suggestions: string[];
+}
+
+export interface ImportPreviewFile {
+  path: string;
+  entities: ParsedEntity[];
+  willImport: boolean;
+  suggestedCollection: string;
+  duplicates?: DuplicateMatch[];
+  warnings?: string[];
+}
+
+export interface DuplicateMatch {
+  entry: Entry;
+  similarity: number;
+  matchReason: string;
+}
+
+export interface ImportPreview {
+  files: ImportPreviewFile[];
+  stats: {
+    totalFiles: number;
+    totalEntities: number;
+    newEntities: number;
+    potentialDuplicates: number;
+    suggestedCollections: string[];
+  };
 }
