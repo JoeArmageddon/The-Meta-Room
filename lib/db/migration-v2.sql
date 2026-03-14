@@ -184,17 +184,27 @@ ALTER TABLE user_bookmarks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_ratings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE learning_paths ENABLE ROW LEVEL SECURITY;
 
--- Read policies
-CREATE POLICY IF NOT EXISTS "Allow all read" ON collections FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all read" ON user_bookmarks FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all read" ON user_ratings FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all read" ON learning_paths FOR SELECT USING (true);
+-- Read policies (drop first to avoid conflicts)
+DROP POLICY IF EXISTS "Allow all read" ON collections;
+DROP POLICY IF EXISTS "Allow all read" ON user_bookmarks;
+DROP POLICY IF EXISTS "Allow all read" ON user_ratings;
+DROP POLICY IF EXISTS "Allow all read" ON learning_paths;
 
--- Write policies
-CREATE POLICY IF NOT EXISTS "Allow all write" ON collections FOR ALL USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all write" ON user_bookmarks FOR ALL USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all write" ON user_ratings FOR ALL USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all write" ON learning_paths FOR ALL USING (true);
+CREATE POLICY "Allow all read" ON collections FOR SELECT USING (true);
+CREATE POLICY "Allow all read" ON user_bookmarks FOR SELECT USING (true);
+CREATE POLICY "Allow all read" ON user_ratings FOR SELECT USING (true);
+CREATE POLICY "Allow all read" ON learning_paths FOR SELECT USING (true);
+
+-- Write policies (drop first to avoid conflicts)
+DROP POLICY IF EXISTS "Allow all write" ON collections;
+DROP POLICY IF EXISTS "Allow all write" ON user_bookmarks;
+DROP POLICY IF EXISTS "Allow all write" ON user_ratings;
+DROP POLICY IF EXISTS "Allow all write" ON learning_paths;
+
+CREATE POLICY "Allow all write" ON collections FOR ALL USING (true);
+CREATE POLICY "Allow all write" ON user_bookmarks FOR ALL USING (true);
+CREATE POLICY "Allow all write" ON user_ratings FOR ALL USING (true);
+CREATE POLICY "Allow all write" ON learning_paths FOR ALL USING (true);
 
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_entries_complexity ON entries(complexity);
