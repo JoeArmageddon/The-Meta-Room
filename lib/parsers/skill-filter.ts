@@ -145,7 +145,7 @@ export function extractCategory(entity: ParsedEntity): SkillCategory | null {
   }
   
   // Check metadata
-  if (entity.metadata.category) {
+  if (entity.metadata?.category) {
     const cat = entity.metadata.category.toLowerCase();
     for (const category of SKILL_CATEGORIES) {
       if (cat.includes(category)) {
@@ -259,6 +259,9 @@ export function filterValidEntities(entities: ParsedEntity[], filePath: string):
     
     // Add category to metadata
     const category = extractCategory(entity);
+    if (!entity.metadata) {
+      entity.metadata = {};
+    }
     if (category) {
       entity.metadata.category = category;
     }
